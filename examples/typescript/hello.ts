@@ -1,33 +1,55 @@
 #!/usr/bin/env tsx
 
-import { Claude } from '@anthropic-ai/claude-code';
+import { query } from '@anthropic-ai/claude-code';
 
 async function main() {
-  // Initialize Claude (uses CLAUDE_CODE_OAUTH_TOKEN from environment)
-  const claude = new Claude();
-
   console.log('🤖 Claude Code TypeScript SDK Example\n');
 
   try {
     // Simple conversation
-    const response = await claude.sendMessage('Hello! What programming language is this example written in?');
+    console.log('📤 Asking Claude about TypeScript...\n');
+    console.log('Claude:');
     
-    console.log('Claude:', response.text);
+    let responseText = '';
+    for await (const message of query({
+      prompt: 'Hello! What programming language is this example written in? Please be brief.',
+      abortController: new AbortController(),
+      options: {
+        model: 'claude-3-5-sonnet-20241022',
+      }
+    })) {
+      if (message.type === 'assistant' && message.message?.content) {
+        for (const block of message.message.content) {
+          if (block.type === 'text') {
+            process.stdout.write(block.text);
+            responseText += block.text;
+          }
+        }
+      }
+    }
     
-    // Example with streaming
-    console.log('\n📝 Streaming example:');
-    console.log('Claude: ');
+    // Example with another query
+    console.log('\n\n📝 Haiku example:');
+    console.log('Claude:\n');
     
-    const stream = await claude.sendMessage('Write a haiku about TypeScript', { 
-      stream: true 
-    });
-    
-    for await (const chunk of stream) {
-      process.stdout.write(chunk.text);
+    for await (const message of query({
+      prompt: 'Write a haiku about TypeScript',
+      abortController: new AbortController(),
+      options: {
+        model: 'claude-3-5-sonnet-20241022',
+      }
+    })) {
+      if (message.type === 'assistant' && message.message?.content) {
+        for (const block of message.message.content) {
+          if (block.type === 'text') {
+            process.stdout.write(block.text);
+          }
+        }
+      }
     }
     console.log('\n');
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error:', error.message);
     console.log('\nMake sure CLAUDE_CODE_OAUTH_TOKEN is set in your environment');
   }

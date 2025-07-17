@@ -1,17 +1,32 @@
-# Base image with Node.js and Claude Code CLI
-FROM node:22-slim AS claude-base
+# Stage 1: Build dependencies
+FROM node:22-slim AS builder
 
-# Install system dependencies
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     jq \
     ca-certificates \
-    nano \
+    build-essential \
+    python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Claude Code CLI and tsx globally (includes TypeScript SDK)
 RUN npm install -g @anthropic-ai/claude-code tsx
+
+# Stage 2: Runtime image
+FROM node:22-slim AS runtime
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    nano \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy global npm packages from builder
+COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 # Set NODE_PATH to include global modules
 ENV NODE_PATH=/usr/local/lib/node_modules
