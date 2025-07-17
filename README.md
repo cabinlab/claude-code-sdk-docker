@@ -1,4 +1,4 @@
-# Claude Code Docker SDK
+# Claude Code SDKs in Docker
 
 [![Build and Publish](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml)
 
