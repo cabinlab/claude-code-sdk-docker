@@ -3,7 +3,12 @@ settings.local.json
 
 # Environment variables
 .env
-.env.*
+.env.local
+.env.production
+.env.development
+
+# Keep .env.example for template
+!.env.example
 
 # OS files
 .DS_Store
