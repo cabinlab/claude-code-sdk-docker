@@ -6,8 +6,8 @@
 
 Images:
 
- -  TypeScript - SDK and CLI are already included in the standard [@anthropic-ai/claude-code package](https://www.npmjs.com/package/@anthropic-ai/claude-code) on NPM. 
- - 🐍 Python - adds Python 3 and Anthropic's [claude-code-sdk-python](https://github.com/anthropics/claude-code-sdk-python) aka [claude-code-sdk](https://pypi.org/project/claude-code-sdk/) on PyPI.
+ -  TypeScript (727MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-code package](https://www.npmjs.com/package/@anthropic-ai/claude-code) on NPM. 
+ - 🐍 Python (813MB) - adds Python 3 and Anthropic's [claude-code-sdk-python](https://github.com/anthropics/claude-code-sdk-python) aka [claude-code-sdk](https://pypi.org/project/claude-code-sdk/) on PyPI.
 
 ## Why use these images?
 

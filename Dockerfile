@@ -1,25 +1,50 @@
 # Multi-language Claude Code SDK container
 # Supports both TypeScript/JavaScript and Python
 
-# We need to build the typescript base first
+# Stage 1: Build Python dependencies
 ARG BASE_IMAGE=ghcr.io/cabinlab/claude-code-sdk:typescript
-FROM ${BASE_IMAGE} AS claude-python
+FROM ${BASE_IMAGE} AS python-builder
 
-# Switch to root to install Python
+# Switch to root for installations
 USER root
 
-# Install Python 3.11
+# Install Python and build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 \
-    python3.11-venv \
+    python3 \
+    python3-venv \
     python3-pip \
+    python3-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Create Python symlink (python3 already exists)
+# Create a virtual environment to isolate dependencies
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python SDK in the virtual environment
+RUN pip install --no-cache-dir claude-code-sdk
+
+# Stage 2: Runtime image
+FROM ${BASE_IMAGE} AS runtime
+
+# Switch to root for minimal Python installation
+USER root
+
+# Install only Python runtime (no dev packages or pip)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the virtual environment from builder
+COPY --from=python-builder /opt/venv /opt/venv
+
+# Create Python symlinks
 RUN ln -s /usr/bin/python3 /usr/bin/python || true
 
-# Install Python SDK
-RUN pip install --no-cache-dir --break-system-packages claude-code-sdk
+# Set PATH to use virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
+# Let Python find the right site-packages automatically
+ENV VIRTUAL_ENV="/opt/venv"
 
 # Switch back to non-root user
 USER claude
