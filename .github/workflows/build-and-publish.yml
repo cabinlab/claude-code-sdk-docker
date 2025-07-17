@@ -28,7 +28,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # Only run if TypeScript-related files changed
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.modified, 'Dockerfile.typescript') ||
@@ -79,7 +78,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # Only run if Python-related files changed or TypeScript base changed
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.modified, 'Dockerfile') ||
@@ -131,7 +129,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # Only run if Alpine-related files changed
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.modified, 'Dockerfile.alpine') ||
@@ -181,7 +178,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    # Only run if Alpine Python-related files changed or Alpine base changed
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.head_commit.modified, 'Dockerfile.alpine-python') ||
