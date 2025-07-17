@@ -1,0 +1,41 @@
+# .aiexclude - Prevent Claude from accessing sensitive files
+# This file uses gitignore syntax
+
+# Secrets and credentials
+.env
+.env.*
+**/secrets/
+**/credentials/
+*.pem
+*.key
+*.cert
+*.p12
+
+# Authentication tokens
+*token*
+*secret*
+*password*
+*api[_-]key*
+
+# Private configuration
+config/private/
+.ssh/
+.gnupg/
+
+# Sensitive data
+**/data/sensitive/
+**/private/
+*.sqlite
+*.db
+
+# Build outputs that might contain secrets
+dist/
+build/
+
+# Local development
+.local/
+.cache/
+
+# IDE configurations that might have credentials
+.vscode/settings.json
+.idea/

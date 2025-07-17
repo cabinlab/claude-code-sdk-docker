@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Example pre-tool-use hook
+# This hook runs before any tool is executed
+#
+# To enable: cp pre-tool-use.example pre-tool-use && chmod +x pre-tool-use
+
+# Tool information is provided via environment variables
+TOOL_NAME="${TOOL_NAME}"
+TOOL_PARAMS="${TOOL_PARAMS}"
+
+# Example: Log all tool usage
+echo "[PRE-TOOL] Tool: ${TOOL_NAME}" >&2
+echo "[PRE-TOOL] Params: ${TOOL_PARAMS}" >&2
+
+# Example: Block dangerous operations
+if [[ "${TOOL_NAME}" == "Bash" ]]; then
+    # Parse params to check for dangerous commands
+    if echo "${TOOL_PARAMS}" | jq -r '.command' | grep -qE '(rm -rf|sudo|chmod 777)'; then
+        echo "[PRE-TOOL] Blocked dangerous command" >&2
+        exit 1  # Non-zero exit blocks the tool
+    fi
+fi
+
+# Example: Require confirmation for Write operations
+if [[ "${TOOL_NAME}" == "Write" ]]; then
+    FILE_PATH=$(echo "${TOOL_PARAMS}" | jq -r '.file_path')
+    echo "[PRE-TOOL] About to write to: ${FILE_PATH}" >&2
+    # In a real scenario, you might prompt for confirmation
+fi
+
+# Exit 0 to allow the tool to proceed
+exit 0

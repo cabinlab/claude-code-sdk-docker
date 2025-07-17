@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Example stop hook
+# This hook runs when Claude stops or completes a task
+#
+# To enable: cp stop.example stop && chmod +x stop
+
+SESSION_ID="${CLAUDE_SESSION_ID}"
+
+echo "[STOP] Claude session ${SESSION_ID} ending" >&2
+
+# Example: Clean up temporary files
+if [[ -d "/tmp/claude-${SESSION_ID}" ]]; then
+    echo "[STOP] Cleaning up temporary files" >&2
+    rm -rf "/tmp/claude-${SESSION_ID}"
+fi
+
+# Example: Save session summary
+# echo "[STOP] Saving session summary" >&2
+# claude-summarize-session > "/tmp/session-${SESSION_ID}-summary.txt"
+
+# Example: Commit any uncommitted changes
+# if [[ -n "$(cd /app && git status --porcelain 2>/dev/null)" ]]; then
+#     echo "[STOP] Auto-committing changes" >&2
+#     cd /app && git add -A && git commit -m "Session ${SESSION_ID}: Final auto-commit"
+# fi
+
+# Example: Send session complete notification
+# curl -s -X POST http://notifications/session-complete \
+#     -H "Content-Type: application/json" \
+#     -d "{\"session_id\": \"${SESSION_ID}\", \"timestamp\": \"$(date -Iseconds)\"}" &
+
+exit 0

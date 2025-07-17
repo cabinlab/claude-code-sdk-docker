@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Example post-tool-use hook
+# This hook runs after any tool completes
+#
+# To enable: cp post-tool-use.example post-tool-use && chmod +x post-tool-use
+
+# Tool information is provided via environment variables
+TOOL_NAME="${TOOL_NAME}"
+TOOL_PARAMS="${TOOL_PARAMS}"
+TOOL_RESULT="${TOOL_RESULT}"  # Exit code or result status
+
+# Example: Log tool completion
+echo "[POST-TOOL] Tool ${TOOL_NAME} completed with result: ${TOOL_RESULT}" >&2
+
+# Example: Track file modifications
+if [[ "${TOOL_NAME}" == "Write" || "${TOOL_NAME}" == "Edit" ]]; then
+    FILE_PATH=$(echo "${TOOL_PARAMS}" | jq -r '.file_path // .path')
+    echo "[POST-TOOL] Modified file: ${FILE_PATH}" >&2
+    
+    # You could add to a modification log
+    echo "$(date -Iseconds) ${TOOL_NAME} ${FILE_PATH}" >> /tmp/claude-modifications.log
+fi
+
+# Example: Git auto-commit after file changes (disabled by default)
+# if [[ "${TOOL_NAME}" == "Write" || "${TOOL_NAME}" == "Edit" ]]; then
+#     cd /app && git add -A && git commit -m "Auto-commit: Claude modified files" 2>/dev/null
+# fi
+
+# Example: Send metrics or telemetry
+# curl -s -X POST http://metrics-server/tool-usage \
+#     -H "Content-Type: application/json" \
+#     -d "{\"tool\": \"${TOOL_NAME}\", \"timestamp\": \"$(date -Iseconds)\"}" &
+
+# Always exit 0 for post hooks (they don't block execution)
+exit 0

@@ -1,0 +1,29 @@
+services:
+  python:
+    container_name: claude-sdk-python
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-ghcr.io/${GITHUB_ORG:-cabinlab}/${GITHUB_REPO:-claude-code-sdk-docker}:typescript}
+    image: ghcr.io/${GITHUB_ORG:-cabinlab}/${GITHUB_REPO:-claude-code-sdk-docker}:python
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    environment:
+      # Claude Code OAuth Token (set this in .env or export before running)
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      # Anthropic API Key (for direct API access)
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Legacy session token (fallback)
+      - CLAUDE_CODE_SESSION=${CLAUDE_CODE_SESSION:-}
+      # Port configuration
+      - PORT=${PORT:-3000}
+    volumes:
+      # Mount current directory for development
+      - .:/app
+      # Docker volume for persistent Claude CLI authentication
+      - claude-auth:/home/claude/.claude
+    working_dir: /app
+
+volumes:
+  claude-auth:
