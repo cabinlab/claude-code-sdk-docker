@@ -28,6 +28,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # Only run if TypeScript-related files changed
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.modified, 'Dockerfile.typescript') ||
+      contains(github.event.head_commit.added, 'Dockerfile.typescript') ||
+      contains(github.event.head_commit.modified, 'scripts/docker-entrypoint.sh')
 
     steps:
       - name: Checkout repository
@@ -73,6 +79,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # Only run if Python-related files changed or TypeScript base changed
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.modified, 'Dockerfile') ||
+      contains(github.event.head_commit.added, 'Dockerfile') ||
+      contains(github.event.head_commit.modified, 'Dockerfile.typescript') ||
+      contains(github.event.head_commit.modified, 'scripts/docker-entrypoint.sh')
 
     steps:
       - name: Checkout repository
@@ -118,6 +131,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # Only run if Alpine-related files changed
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.modified, 'Dockerfile.alpine') ||
+      contains(github.event.head_commit.added, 'Dockerfile.alpine') ||
+      contains(github.event.head_commit.modified, 'scripts/docker-entrypoint.sh')
 
     steps:
       - name: Checkout repository
@@ -162,6 +181,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+    # Only run if Alpine Python-related files changed or Alpine base changed
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.modified, 'Dockerfile.alpine-python') ||
+      contains(github.event.head_commit.added, 'Dockerfile.alpine-python') ||
+      contains(github.event.head_commit.modified, 'Dockerfile.alpine') ||
+      contains(github.event.head_commit.modified, 'scripts/docker-entrypoint.sh')
 
     steps:
       - name: Checkout repository
@@ -205,7 +231,7 @@ jobs:
   test:
     needs: [build-typescript, build-python, build-alpine, build-alpine-python]
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && always()
 
     strategy:
       matrix:
@@ -216,7 +242,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Test TypeScript image
-        if: matrix.image == 'typescript'
+        if: matrix.image == 'typescript' && needs.build-typescript.result == 'success'
         run: |
           # Test basic functionality
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }} \
@@ -231,7 +257,7 @@ jobs:
             echo "Container started successfully"
 
       - name: Test Python image
-        if: matrix.image == 'python'
+        if: matrix.image == 'python' && needs.build-python.result == 'success'
         run: |
           # Test Python functionality
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-python \
@@ -250,7 +276,7 @@ jobs:
             python -c "import claude_code_sdk; print('SDK installed')"
 
       - name: Test Alpine image
-        if: matrix.image == 'alpine'
+        if: matrix.image == 'alpine' && needs.build-alpine.result == 'success'
         run: |
           # Test basic functionality
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine \
@@ -265,7 +291,7 @@ jobs:
             echo "Alpine container started successfully"
 
       - name: Test Alpine Python image
-        if: matrix.image == 'alpine-python'
+        if: matrix.image == 'alpine-python' && needs.build-alpine-python.result == 'success'
         run: |
           # Test Python functionality
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
