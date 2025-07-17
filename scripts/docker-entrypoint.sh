@@ -7,21 +7,8 @@ set -e
 
 # Function to setup authentication from OAuth token
 setup_oauth_auth() {
-    # Check for token in Docker secret file first, then environment variable
-    local token=""
-    
-    if [ -n "$CLAUDE_CODE_OAUTH_TOKEN_FILE" ] && [ -f "$CLAUDE_CODE_OAUTH_TOKEN_FILE" ]; then
-        echo "Reading OAuth token from Docker secret..."
-        token=$(cat "$CLAUDE_CODE_OAUTH_TOKEN_FILE" | tr -d '\n')
-    elif [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-        echo "Using OAuth token from environment variable..."
-        token="$CLAUDE_CODE_OAUTH_TOKEN"
-    fi
-    
-    if [ -n "$token" ]; then
-        echo "Setting up Claude CLI authentication..."
-        # Use the token variable instead of CLAUDE_CODE_OAUTH_TOKEN directly
-        export CLAUDE_CODE_OAUTH_TOKEN="$token"
+    if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+        echo "Setting up Claude CLI authentication from OAuth token..."
         
         # Create .claude directory if it doesn't exist
         mkdir -p ~/.claude
@@ -30,8 +17,8 @@ setup_oauth_auth() {
         cat > ~/.claude/.credentials.json << EOF
 {
   "claudeAiOauth": {
-    "accessToken": "$token",
-    "refreshToken": "$token",
+    "accessToken": "$CLAUDE_CODE_OAUTH_TOKEN",
+    "refreshToken": "$CLAUDE_CODE_OAUTH_TOKEN",
     "expiresAt": "2099-12-31T23:59:59.999Z",
     "scopes": ["read", "write"],
     "subscriptionType": "pro"
@@ -85,10 +72,9 @@ EOF
         
         echo "OAuth authentication setup complete"
     else
-        echo "No OAuth token found. You can:"
+        echo "No CLAUDE_CODE_OAUTH_TOKEN found. You can:"
         echo "1. Set CLAUDE_CODE_OAUTH_TOKEN environment variable with a long-lived token"
-        echo "2. Mount a Docker secret to /run/secrets/oauth_token"
-        echo "3. Or authenticate interactively by running 'claude' in the container"
+        echo "2. Or authenticate interactively by running 'claude' in the container"
     fi
 }
 

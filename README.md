@@ -168,23 +168,6 @@ docker run -v ~/.claude:/home/claude/.claude ...
 
 For technical details and troubleshooting, see our [Authentication Guide](docs/AUTHENTICATION.md).
 
-### Advanced: Docker Secrets (Optional)
-
-For enhanced security in local development, you can use Docker Secrets to keep your token out of shell history and environment variable listings:
-
-1. Create your secret file:
-   ```bash
-   mkdir -p .secrets
-   echo "sk-ant-oat01-your-token-here" > .secrets/oauth_token.txt
-   ```
-
-2. Uncomment the Docker Secrets lines in `compose.yaml` or `compose-python.yaml`
-
-3. Run normally:
-   ```bash
-   docker compose up -d
-   ```
-
 ## Building Your Own Images
 
 <details>
