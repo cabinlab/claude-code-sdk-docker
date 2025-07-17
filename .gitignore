@@ -42,3 +42,6 @@ build/
 
 # Archive directory
 .archive/
+
+# Secrets directory (for Docker Secrets)
+.secrets/
