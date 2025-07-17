@@ -50,12 +50,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=typescript,enable={{is_default_branch}}
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push TypeScript image
         uses: docker/build-push-action@v5
@@ -97,7 +95,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch,suffix=-python
             type=ref,event=pr,suffix=-python
             type=semver,pattern={{version}}-python
             type=raw,value=python,enable={{is_default_branch}}
@@ -116,14 +113,103 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  build-alpine:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=pr,suffix=-alpine
+            type=semver,pattern={{version}}-alpine
+            type=raw,value=alpine,enable={{is_default_branch}}
+
+      - name: Build and push Alpine image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.alpine
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-alpine-python:
+    needs: build-alpine
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to the Container registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=pr,suffix=-alpine-python
+            type=semver,pattern={{version}}-alpine-python
+            type=raw,value=alpine-python,enable={{is_default_branch}}
+
+      - name: Build and push Alpine Python image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.alpine-python
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:alpine
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   test:
-    needs: [build-typescript, build-python]
+    needs: [build-typescript, build-python, build-alpine, build-alpine-python]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
     strategy:
       matrix:
-        image: [typescript, python]
+        image: [typescript, python, alpine, alpine-python]
 
     steps:
       - name: Checkout repository
@@ -162,3 +248,37 @@ jobs:
           # Test Python SDK is installed
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-python \
             python -c "import claude_code_sdk; print('SDK installed')"
+
+      - name: Test Alpine image
+        if: matrix.image == 'alpine'
+        run: |
+          # Test basic functionality
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine \
+            node --version
+          
+          # Test Claude CLI is installed
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine \
+            claude --version
+          
+          # Test entrypoint script
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine \
+            echo "Alpine container started successfully"
+
+      - name: Test Alpine Python image
+        if: matrix.image == 'alpine-python'
+        run: |
+          # Test Python functionality
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
+            python3 --version
+          
+          # Test Node.js is also available
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
+            node --version
+          
+          # Test Claude CLI is installed
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
+            claude --version
+          
+          # Test Python SDK is installed
+          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
+            python3 -c "import claude_code_sdk; print('Alpine Python SDK installed')"

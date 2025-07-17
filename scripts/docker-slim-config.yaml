@@ -1,0 +1,62 @@
+# docker-slim configuration for Claude Code SDK containers
+# Usage: docker-slim build --config-file docker-slim-config.yaml
+
+# Include essential executables
+include-exe:
+  - /usr/local/bin/node
+  - /usr/local/bin/npm
+  - /usr/local/bin/npx
+  - /usr/local/bin/tsx
+  - /usr/local/bin/claude
+  - /usr/bin/git
+  - /usr/bin/curl
+  - /bin/bash
+  - /bin/sh
+  - /usr/bin/env
+  # Python-specific (if applicable)
+  - /usr/bin/python3
+  - /usr/local/bin/pip3
+
+# Include essential paths
+include-path:
+  # Node modules and npm
+  - /usr/local/lib/node_modules
+  - /home/claude/.npm
+  - /home/claude/.config
+  # Git configuration
+  - /usr/share/git-core
+  - /etc/gitconfig
+  # SSL certificates (critical for HTTPS)
+  - /etc/ssl
+  - /etc/ca-certificates
+  - /usr/share/ca-certificates
+  # Temp directories
+  - /tmp
+  - /var/tmp
+  # User home
+  - /home/claude
+  # Claude specific
+  - /home/claude/.claude
+  # Python site-packages (if applicable)
+  - /usr/local/lib/python3
+  - /usr/lib/python3
+  # System libraries
+  - /lib
+  - /usr/lib
+  # Timezone and locale
+  - /usr/share/zoneinfo
+  - /usr/share/locale
+
+# Include shell functionality
+include-shell: true
+
+# Don't remove these files
+preserve:
+  - /etc/passwd
+  - /etc/group
+  - /etc/nsswitch.conf
+  - /etc/hosts
+  - /etc/resolv.conf
+
+# Continue monitoring after initial execution
+continue-after: 30

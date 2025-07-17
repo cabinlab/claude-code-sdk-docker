@@ -1,0 +1,66 @@
+# Alpine-based minimal Claude Code SDK container
+# Optimized for fast startup and small size in agent/CI scenarios
+
+# Stage 1: Build stage
+FROM node:22-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    git \
+    python3 \
+    make \
+    g++ \
+    gcc \
+    libc-dev
+
+# Install Claude Code CLI and tsx (includes TypeScript SDK)
+RUN npm install -g @anthropic-ai/claude-code tsx && \
+    # Remove unused platform-specific binaries to reduce image size
+    find /usr/local/lib/node_modules/@anthropic-ai/claude-code -name "*.exe" -delete && \
+    find /usr/local/lib/node_modules/@anthropic-ai/claude-code -path "*darwin*" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/node_modules/@anthropic-ai/claude-code -path "*win32*" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/node_modules/@anthropic-ai/claude-code -path "*jetbrains*" -type d -exec rm -rf {} + 2>/dev/null || true
+
+# Stage 2: Runtime stage
+FROM node:22-alpine AS runtime
+
+# Install only minimal runtime dependencies
+RUN apk add --no-cache \
+    git \
+    bash \
+    curl \
+    nano \
+    ca-certificates
+
+# Copy node modules from builder
+COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=builder /usr/local/bin/claude /usr/local/bin/claude
+COPY --from=builder /usr/local/bin/tsx /usr/local/bin/tsx
+# Copy yoga.wasm to the same directory as claude binary
+COPY --from=builder /usr/local/lib/node_modules/@anthropic-ai/claude-code/yoga.wasm /usr/local/bin/yoga.wasm
+
+# Set NODE_PATH to include global modules
+ENV NODE_PATH=/usr/local/lib/node_modules
+
+# Create non-root user
+RUN adduser -D -s /bin/bash claude
+
+# Switch to non-root user
+USER claude
+WORKDIR /home/claude
+
+# Copy Claude configuration scaffolding
+COPY --chown=claude:claude .claude .claude
+
+# Copy examples
+COPY --chown=claude:claude examples/ /app/examples/
+
+# Copy entrypoint script
+COPY --chown=claude:claude scripts/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Set up working directory
+WORKDIR /app
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["bash"]

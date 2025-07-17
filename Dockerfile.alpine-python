@@ -1,0 +1,25 @@
+# Alpine Python extension - adds Python SDK to Alpine base
+
+# Build argument for base image (defaults to published alpine image)
+ARG BASE_IMAGE=ghcr.io/cabinlab/claude-code-sdk-docker:alpine
+
+# For local builds, build from the local alpine image
+# In production, this will use the published alpine image
+FROM ${BASE_IMAGE}
+
+# Switch to root for installations
+USER root
+
+# Install Python and pip (python3-dev removed for size optimization)
+RUN apk add --no-cache \
+    python3 \
+    py3-pip
+
+# Install Python SDK
+RUN pip3 install --no-cache-dir --break-system-packages claude-code-sdk
+
+# Switch back to claude user
+USER claude
+
+# Python environment ready
+CMD ["python3"]
