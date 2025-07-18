@@ -55,9 +55,13 @@ COPY --chown=claude:claude .claude .claude
 # Copy examples
 COPY --chown=claude:claude examples/ /app/examples/
 
-# Copy entrypoint script
-COPY --chown=claude:claude scripts/docker-entrypoint.sh /usr/local/bin/
+# Copy entrypoint script (as root)
+USER root
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Switch back to claude user
+USER claude
 
 # Set up working directory
 WORKDIR /app
