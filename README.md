@@ -6,8 +6,10 @@
 
 Images:
 
- -  TypeScript (727MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-code package](https://www.npmjs.com/package/@anthropic-ai/claude-code) on NPM. 
- - 🐍 Python (813MB) - adds Python 3 and Anthropic's [claude-code-sdk-python](https://github.com/anthropics/claude-code-sdk-python) aka [claude-code-sdk](https://pypi.org/project/claude-code-sdk/) on PyPI.
+ - TypeScript (607MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-code package](https://www.npmjs.com/package/@anthropic-ai/claude-code) on NPM. 
+ - 🐍 Python (693MB) - adds Python 3 and Anthropic's [claude-code-sdk-python](https://github.com/anthropics/claude-code-sdk-python) aka [claude-code-sdk](https://pypi.org/project/claude-code-sdk/) on PyPI.
+ - 🏔️ Alpine TypeScript (383MB) - Minimal Alpine Linux base
+ - 🏔️ Alpine Python (474MB) - Alpine with Python support
 
 ## Why use these images?
 
@@ -19,9 +21,13 @@ Images:
 
 ## Available Images
 
-- `ghcr.io/cabinlab/claude-code-sdk:latest` - CLI + TypeScript SDK
-- `ghcr.io/cabinlab/claude-code-sdk:typescript` - Same as latest
-- `ghcr.io/cabinlab/claude-code-sdk:python` - Above + Python SDKs
+**Debian-based:**
+- `ghcr.io/cabinlab/claude-code-sdk:typescript` - CLI + TypeScript SDK
+- `ghcr.io/cabinlab/claude-code-sdk:python` - Above + Python SDK
+
+**Alpine-based:**
+- `ghcr.io/cabinlab/claude-code-sdk:alpine` - Minimal TypeScript
+- `ghcr.io/cabinlab/claude-code-sdk:alpine-python` - Minimal + Python
 
 ## Quick Start (for Claude Pro and Max users)
 
@@ -71,9 +77,11 @@ Images:
 
 ### Using Docker Compose (Full Examples)
 
-**Note:** This project includes two compose files:
-- `compose.yaml` - TypeScript container only
-- `compose-python.yaml` - Python container (which includes TypeScript)
+**Note:** This project includes compose files for different variants:
+- `compose.yaml` - Debian TypeScript
+- `compose-python.yaml` - Debian Python  
+- `compose-alpine.yaml` - Alpine TypeScript
+- `compose-alpine-python.yaml` - Alpine Python
 
 #### Option 1: Run TypeScript
 ```bash
