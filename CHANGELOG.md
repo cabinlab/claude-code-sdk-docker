@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-07-29
+
+### Added
+- **Subagent scaffolding** with example configurations from official documentation
+  - `code-reviewer`: Expert code review specialist for quality and security
+  - `debugger`: Debugging specialist for root cause analysis
+  - `data-scientist`: Data analysis expert for SQL and BigQuery operations
+- Complete `.claude/agents/` directory structure for custom subagent definitions
+
+### Changed
+- Enhanced Claude Code configuration scaffolding with agents support
+
 ## [0.2.0] - 2025-07-18
 
 ### Added
