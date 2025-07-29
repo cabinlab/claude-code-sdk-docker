@@ -1,55 +1,56 @@
 # Multi-language Claude Code SDK container
 # Supports both TypeScript/JavaScript and Python
 
-# Stage 1: Build Python dependencies
-ARG BASE_IMAGE=ghcr.io/cabinlab/claude-code-sdk:typescript
-FROM ${BASE_IMAGE} AS python-builder
+# Since Python-specific base image may not be available, we'll use the TypeScript base
+# and add Python support on top
+FROM ghcr.io/cabinlab/claude-code-sdk:typescript AS runtime
 
-# Switch to root for installations
+# Switch to root for any additional setup
 USER root
 
-# Install Python and build dependencies
+# Install any additional runtime dependencies if needed
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-venv \
-    python3-pip \
-    python3-dev \
-    build-essential \
+    nano \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a virtual environment to isolate dependencies
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+# The base image already includes:
+# - Claude Code CLI
+# - tsx for TypeScript execution
+# - Python 3 runtime with claude-code-sdk
+# - Node.js runtime
+# - git and ca-certificates
+# - A non-root user (claude)
+# - OAuth token handling
 
-# Install Python SDK in the virtual environment
-RUN pip install --no-cache-dir claude-code-sdk
+# Set up .claude configuration scaffolding
+RUN mkdir -p /home/claude/.claude/commands /home/claude/.claude/hooks && \
+    chown -R claude:claude /home/claude/.claude
 
-# Stage 2: Runtime image
-FROM ${BASE_IMAGE} AS runtime
+# Copy Claude configuration scaffolding
+COPY --chown=claude:claude .claude/ /home/claude/.claude/
 
-# Switch to root for minimal Python installation
-USER root
+# Copy examples and scripts
+COPY --chown=claude:claude examples/ /app/examples/
+COPY --chown=claude:claude scripts/ /app/scripts/
 
-# Install only Python runtime (no dev packages or pip)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+# Copy entrypoint script (as root)
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Copy the virtual environment from builder
-COPY --from=python-builder /opt/venv /opt/venv
-
-# Create Python symlinks
-RUN ln -s /usr/bin/python3 /usr/bin/python || true
-
-# Set PATH to use virtual environment
-ENV PATH="/opt/venv/bin:$PATH"
-# Let Python find the right site-packages automatically
-ENV VIRTUAL_ENV="/opt/venv"
+# Set working directory
+WORKDIR /app
+RUN chown claude:claude /app
 
 # Switch back to non-root user
 USER claude
 
-# Working directory is already /app from base image
-# Port 3000 is already exposed from base image
+# Expose port (configurable via PORT env var, default 3000)
+ARG PORT=3000
+ENV PORT=${PORT}
+EXPOSE ${PORT}
 
-# Entrypoint is inherited from base image
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Default command
+CMD ["sleep", "infinity"]
