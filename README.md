@@ -1,6 +1,7 @@
 # Claude Code SDKs in Docker
 
-[![Build and Publish](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml)
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml)
 
 ### Docker images with Official Claude Code SDK built-in. 
 
