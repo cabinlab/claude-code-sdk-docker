@@ -1,4 +1,7 @@
 # Stage 1: Build dependencies
+# Build Date: July 2025
+# Claude Code CLI: Latest version (unpinned) - ~v1.0.64 as of July 2025
+# Includes TypeScript SDK via @anthropic-ai/claude-code package
 FROM node:22-slim AS builder
 
 # Install build dependencies
