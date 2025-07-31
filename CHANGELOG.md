@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2025-07-31
+
+### Added
+- **Automated version update system** - Daily checks for new SDK releases
+
+### Changed
+- Updated to latest SDK versions:
+  - Claude Code CLI: v1.0.64
+  - Python SDK: v0.0.17
+- Added version documentation comments to all Dockerfiles
+
 ## [0.2.1] - 2025-07-29
 
 ### Added

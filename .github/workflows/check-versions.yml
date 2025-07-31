@@ -1,0 +1,145 @@
+name: Check for Updates
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_update:
+        description: 'Force update even if versions match'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check for new versions
+        id: check
+        run: |
+          # Get current versions
+          CURRENT_CLI_VERSION=$(jq -r '."claude-code-cli"' versions.json)
+          CURRENT_PYTHON_VERSION=$(jq -r '."claude-code-sdk-python"' versions.json)
+          
+          # Get latest versions
+          LATEST_CLI_VERSION=$(curl -s https://registry.npmjs.org/@anthropic-ai/claude-code/latest | jq -r '.version')
+          LATEST_PYTHON_VERSION=$(curl -s https://pypi.org/pypi/claude-code-sdk/json | jq -r '.info.version')
+          
+          echo "Current CLI version: $CURRENT_CLI_VERSION"
+          echo "Latest CLI version: $LATEST_CLI_VERSION"
+          echo "Current Python SDK version: $CURRENT_PYTHON_VERSION"
+          echo "Latest Python SDK version: $LATEST_PYTHON_VERSION"
+          
+          # Check if update needed
+          UPDATE_NEEDED=false
+          if [[ "$CURRENT_CLI_VERSION" != "$LATEST_CLI_VERSION" ]] || [[ "$CURRENT_PYTHON_VERSION" != "$LATEST_PYTHON_VERSION" ]] || [[ "${{ github.event.inputs.force_update }}" == "true" ]]; then
+            UPDATE_NEEDED=true
+          fi
+          
+          # Set outputs
+          echo "update_needed=$UPDATE_NEEDED" >> $GITHUB_OUTPUT
+          echo "cli_version=$LATEST_CLI_VERSION" >> $GITHUB_OUTPUT
+          echo "python_version=$LATEST_PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "cli_updated=$([[ "$CURRENT_CLI_VERSION" != "$LATEST_CLI_VERSION" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "python_updated=$([[ "$CURRENT_PYTHON_VERSION" != "$LATEST_PYTHON_VERSION" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
+      - name: Update versions
+        if: steps.check.outputs.update_needed == 'true'
+        run: |
+          # Update versions.json
+          jq --arg cli "${{ steps.check.outputs.cli_version }}" \
+             --arg python "${{ steps.check.outputs.python_version }}" \
+             --arg date "$(date -u +%Y-%m-%d)" \
+             '.["claude-code-cli"] = $cli | .["claude-code-sdk-python"] = $python | .last_updated = $date | .last_check = $date' \
+             versions.json > versions.json.tmp && mv versions.json.tmp versions.json
+          
+          # Update Dockerfiles
+          DATE=$(date -u +"%B %Y")
+          
+          # Update TypeScript Dockerfile
+          sed -i "s/Claude Code CLI: Latest version (unpinned) - ~v[0-9.]* as of .*/Claude Code CLI: Latest version (unpinned) - ~v${{ steps.check.outputs.cli_version }} as of $DATE/" Dockerfile.typescript
+          sed -i "s/Claude Code CLI: Latest version (unpinned) - ~v[0-9.]* as of .*/Claude Code CLI: Latest version (unpinned) - ~v${{ steps.check.outputs.cli_version }} as of $DATE/" Dockerfile.alpine
+          
+          # Update Python Dockerfiles
+          sed -i "s/Python SDK: Latest version (unpinned) - ~v[0-9.]* as of .*/Python SDK: Latest version (unpinned) - ~v${{ steps.check.outputs.python_version }} as of $DATE/" Dockerfile
+          sed -i "s/Python SDK: Latest version (unpinned) - ~v[0-9.]* as of .*/Python SDK: Latest version (unpinned) - ~v${{ steps.check.outputs.python_version }} as of $DATE/" Dockerfile.alpine-python
+          
+          # Update build date in all files
+          sed -i "s/Build Date: .*/Build Date: $DATE/" Dockerfile.typescript
+          sed -i "s/Build Date: .*/Build Date: $DATE/" Dockerfile
+          sed -i "s/Build Date: .*/Build Date: $DATE/" Dockerfile.alpine
+          sed -i "s/Build Date: .*/Build Date: $DATE/" Dockerfile.alpine-python
+
+      - name: Create Pull Request
+        if: steps.check.outputs.update_needed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: Update to latest SDK versions
+            
+            - Claude Code CLI: v${{ steps.check.outputs.cli_version }}
+            - Python SDK: v${{ steps.check.outputs.python_version }}
+          branch: auto-update/sdk-versions
+          delete-branch: true
+          title: "chore: Update SDK versions"
+          body: |
+            ## Automated SDK Version Update
+            
+            This PR updates the Docker containers to use the latest SDK versions.
+            
+            ### Changes
+            ${{ steps.check.outputs.cli_updated == 'true' && format('- ✅ Claude Code CLI updated to v{0}', steps.check.outputs.cli_version) || '- ✓ Claude Code CLI already up to date' }}
+            ${{ steps.check.outputs.python_updated == 'true' && format('- ✅ Python SDK updated to v{0}', steps.check.outputs.python_version) || '- ✓ Python SDK already up to date' }}
+            
+            ### Actions
+            - Updated `versions.json` with latest versions
+            - Updated version documentation in all Dockerfiles
+            - Container images will be rebuilt automatically upon merge
+            
+            This PR was created automatically by the version check workflow.
+          labels: |
+            dependencies
+            automated
+          
+      - name: Create issue for manual review
+        if: steps.check.outputs.update_needed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `New SDK versions available`;
+            const body = `## New SDK Versions Detected
+            
+            The automated version checker has found new SDK versions:
+            
+            ${context.payload.steps.check.outputs.cli_updated === 'true' ? `- **Claude Code CLI**: v${context.payload.steps.check.outputs.cli_version}` : ''}
+            ${context.payload.steps.check.outputs.python_updated === 'true' ? `- **Python SDK**: v${context.payload.steps.check.outputs.python_version}` : ''}
+            
+            A pull request has been automatically created: #${{ steps.create-pr.outputs.pull-request-number }}
+            
+            Please review and merge the PR to update the containers.`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['dependencies', 'automated']
+            });

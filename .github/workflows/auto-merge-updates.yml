@@ -1,0 +1,40 @@
+name: Auto-merge Version Updates
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'versions.json'
+      - 'Dockerfile*'
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'github-actions[bot]' && contains(github.event.pull_request.labels.*.name, 'automated')
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Wait for checks
+        uses: lewagon/wait-on-check-action@v1.3.4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-regexp: '^(Build|Test).*'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          allowed-conclusions: success,skipped
+
+      - name: Auto-merge PR
+        uses: pascalgn/merge-action@v0.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MERGE_LABELS: "automated,dependencies"
+          MERGE_METHOD: "squash"
+          MERGE_COMMIT_MESSAGE: "pull-request-title"
+          MERGE_DELETE_BRANCH: "true"

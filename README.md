@@ -235,6 +235,17 @@ See the `examples/` directory for sample code in:
 - TypeScript (with direct execution via tsx)
 - Python
 
+## Automatic Updates
+
+This repository automatically checks for new SDK versions daily and creates pull requests when updates are available. The automated workflow:
+- Runs daily at 2 AM UTC
+- Checks npm for Claude Code CLI updates
+- Checks PyPI for Python SDK updates
+- Creates PRs with updated versions
+- Auto-merges PRs after tests pass
+
+Manual version checks can be triggered via the "Check for Updates" workflow in the Actions tab.
+
 ## Contributing
 
 Contributions welcome! Please:
