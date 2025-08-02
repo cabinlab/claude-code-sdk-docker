@@ -1,7 +1,7 @@
 # Multi-language Claude Code SDK container
 # Supports both TypeScript/JavaScript and Python
-# Build Date: July 2025
-# Python SDK: Latest version (unpinned) - ~v0.0.17 as of July 2025
+# Build Date: August 2025
+# Python SDK: Latest version (unpinned) - ~v0.0.19 as of August 2025
 # Inherits Claude Code CLI from base TypeScript image
 
 # Stage 1: Build Python dependencies
