@@ -1,7 +1,7 @@
 # Alpine-based minimal Claude Code SDK container
 # Optimized for fast startup and small size in agent/CI scenarios
-# Build Date: July 2025
-# Claude Code CLI: Latest version (unpinned) - ~v1.0.64 as of July 2025
+# Build Date: August 2025
+# Claude Code CLI: Latest version (unpinned) - ~v1.0.67 as of August 2025
 # Includes TypeScript SDK via @anthropic-ai/claude-code package
 
 # Stage 1: Build stage
