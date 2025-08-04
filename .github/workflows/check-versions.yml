@@ -89,35 +89,46 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check.outputs.update_needed == 'true'
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: |
-            chore: Update to latest SDK versions
+        id: create-pr
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Create branch and commit changes
+          git checkout -b auto-update/sdk-versions
+          git add versions.json Dockerfile*
+          git commit -m "chore: Update to latest SDK versions
+
+          - Claude Code CLI: v${{ steps.check.outputs.cli_version }}
+          - Python SDK: v${{ steps.check.outputs.python_version }}"
+          
+          # Push branch
+          git push -f origin auto-update/sdk-versions
+          
+          # Create PR using GitHub CLI
+          pr_url=$(gh pr create \
+            --title "chore: Update SDK versions" \
+            --body "## Automated SDK Version Update
             
-            - Claude Code CLI: v${{ steps.check.outputs.cli_version }}
-            - Python SDK: v${{ steps.check.outputs.python_version }}
-          branch: auto-update/sdk-versions
-          delete-branch: true
-          title: "chore: Update SDK versions"
-          body: |
-            ## Automated SDK Version Update
-            
-            This PR updates the Docker containers to use the latest SDK versions.
-            
-            ### Changes
-            ${{ steps.check.outputs.cli_updated == 'true' && format('- ✅ Claude Code CLI updated to v{0}', steps.check.outputs.cli_version) || '- ✓ Claude Code CLI already up to date' }}
-            ${{ steps.check.outputs.python_updated == 'true' && format('- ✅ Python SDK updated to v{0}', steps.check.outputs.python_version) || '- ✓ Python SDK already up to date' }}
-            
-            ### Actions
-            - Updated `versions.json` with latest versions
-            - Updated version documentation in all Dockerfiles
-            - Container images will be rebuilt automatically upon merge
-            
-            This PR was created automatically by the version check workflow.
-          labels: |
-            dependencies
-            automated
+This PR updates the Docker containers to use the latest SDK versions.
+
+### Changes
+${{ steps.check.outputs.cli_updated == 'true' && format('- ✅ Claude Code CLI updated to v{0}', steps.check.outputs.cli_version) || '- ✓ Claude Code CLI already up to date' }}
+${{ steps.check.outputs.python_updated == 'true' && format('- ✅ Python SDK updated to v{0}', steps.check.outputs.python_version) || '- ✓ Python SDK already up to date' }}
+
+### Actions
+- Updated \`versions.json\` with latest versions
+- Updated version documentation in all Dockerfiles
+- Container images will be rebuilt automatically upon merge
+
+This PR was created automatically by the version check workflow." \
+            --label "dependencies" \
+            --label "automated" \
+            --base main)
+          
+          echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
+          echo "pr_number=$(echo $pr_url | awk -F'/' '{print $NF}')" >> $GITHUB_OUTPUT
           
       - name: Create issue for manual review
         if: steps.check.outputs.update_needed == 'true'
@@ -127,14 +138,14 @@ jobs:
             const title = `New SDK versions available`;
             const body = `## New SDK Versions Detected
             
-            The automated version checker has found new SDK versions:
-            
-            ${context.payload.steps.check.outputs.cli_updated === 'true' ? `- **Claude Code CLI**: v${context.payload.steps.check.outputs.cli_version}` : ''}
-            ${context.payload.steps.check.outputs.python_updated === 'true' ? `- **Python SDK**: v${context.payload.steps.check.outputs.python_version}` : ''}
-            
-            A pull request has been automatically created: #${{ steps.create-pr.outputs.pull-request-number }}
-            
-            Please review and merge the PR to update the containers.`;
+The automated version checker has found new SDK versions:
+
+${{ steps.check.outputs.cli_updated == 'true' && format('- **Claude Code CLI**: v{0}', steps.check.outputs.cli_version) || '' }}
+${{ steps.check.outputs.python_updated == 'true' && format('- **Python SDK**: v{0}', steps.check.outputs.python_version) || '' }}
+
+A pull request has been automatically created: #${{ steps.create-pr.outputs.pr_number }}
+
+Please review and merge the PR to update the containers.`;
             
             github.rest.issues.create({
               owner: context.repo.owner,

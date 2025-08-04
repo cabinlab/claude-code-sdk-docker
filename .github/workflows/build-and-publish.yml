@@ -17,6 +17,15 @@ on:
       - '.github/workflows/build-and-publish.yml'
       - '.dockerignore'
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild all images (ignore path filters)'
+        type: boolean
+        default: false
+      images_to_build:
+        description: 'Images to build (comma-separated: typescript,python,alpine,alpine-python or "all")'
+        type: string
+        default: 'all'
 
 env:
   REGISTRY: ghcr.io
@@ -26,14 +35,39 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      typescript: ${{ steps.filter.outputs.typescript }}
-      python: ${{ steps.filter.outputs.python }}
-      alpine: ${{ steps.filter.outputs.alpine }}
-      alpine-python: ${{ steps.filter.outputs.alpine-python }}
+      typescript: ${{ steps.filter.outputs.typescript || steps.manual.outputs.typescript }}
+      python: ${{ steps.filter.outputs.python || steps.manual.outputs.python }}
+      alpine: ${{ steps.filter.outputs.alpine || steps.manual.outputs.alpine }}
+      alpine-python: ${{ steps.filter.outputs.alpine-python || steps.manual.outputs.alpine-python }}
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Check manual trigger
+        id: manual
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [[ "${{ github.event.inputs.force_rebuild }}" == "true" ]] || [[ "${{ github.event.inputs.images_to_build }}" == "all" ]]; then
+            echo "typescript=true" >> $GITHUB_OUTPUT
+            echo "python=true" >> $GITHUB_OUTPUT
+            echo "alpine=true" >> $GITHUB_OUTPUT
+            echo "alpine-python=true" >> $GITHUB_OUTPUT
+          else
+            # Parse comma-separated list
+            IFS=',' read -ra IMAGES <<< "${{ github.event.inputs.images_to_build }}"
+            for image in "${IMAGES[@]}"; do
+              image=$(echo "$image" | xargs) # trim whitespace
+              case "$image" in
+                "typescript") echo "typescript=true" >> $GITHUB_OUTPUT ;;
+                "python") echo "python=true" >> $GITHUB_OUTPUT ;;
+                "alpine") echo "alpine=true" >> $GITHUB_OUTPUT ;;
+                "alpine-python") echo "alpine-python=true" >> $GITHUB_OUTPUT ;;
+              esac
+            done
+          fi
+      
       - uses: dorny/paths-filter@v3
         id: filter
+        if: github.event_name != 'workflow_dispatch'
         with:
           filters: |
             typescript:
