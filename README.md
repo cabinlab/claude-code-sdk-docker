@@ -7,7 +7,7 @@
 
 Images:
 
- - TypeScript (607MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-agent-sdk package](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk) on NPM.
+ - TypeScript (607MB) - Includes the [@anthropic-ai/claude-agent-sdk](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk) SDK and [@anthropic-ai/claude-code](https://www.npmjs.com/package/@anthropic-ai/claude-code) CLI.
  - 🐍 Python (693MB) - adds Python 3 and Anthropic's [claude-agent-sdk-python](https://github.com/anthropics/claude-agent-sdk-python) aka [claude-agent-sdk](https://pypi.org/project/claude-agent-sdk/) on PyPI.
  - 🏔️ Alpine TypeScript (383MB) - Minimal Alpine Linux base
  - 🏔️ Alpine Python (474MB) - Alpine with Python support
@@ -16,7 +16,7 @@ Images:
 
 ### ✅ Claude Pro and Max subscription compatibility
 
-***Problem:*** As of July, 2025, the Claude Agent SDKs use the CLI OAuth flow, which is clunky inside a container.
+***Problem:*** The Claude Agent SDKs use the CLI OAuth flow, which is clunky inside a container.
 
 ***Solution:*** These containers replace the CLI authentication with Long-lived access tokens. See: `claude setup-token --help`
 
