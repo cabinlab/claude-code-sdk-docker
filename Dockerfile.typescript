@@ -1,7 +1,7 @@
 # Stage 1: Build dependencies
 # Build Date: 2026-02-11
-# Claude Agent SDK CLI: Latest version (unpinned) - ~v0.2.39 as of 2026-02-11
-# Includes TypeScript SDK via @anthropic-ai/claude-agent-sdk package
+# Claude Code CLI: @anthropic-ai/claude-code (provides `claude` command)
+# Claude Agent SDK: @anthropic-ai/claude-agent-sdk (provides programmatic SDK)
 FROM node:22-slim AS builder
 
 # Install build dependencies
@@ -14,13 +14,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Agent SDK CLI and tsx globally (includes TypeScript SDK)
-RUN npm install -g @anthropic-ai/claude-agent-sdk tsx && \
+# Install Claude Code CLI + Agent SDK + tsx globally
+RUN npm install -g @anthropic-ai/claude-code @anthropic-ai/claude-agent-sdk tsx && \
     # Remove unused platform-specific binaries to reduce image size
-    find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -name "*.exe" -delete && \
-    find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -path "*darwin*" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -path "*win32*" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -path "*jetbrains*" -type d -exec rm -rf {} + 2>/dev/null || true
+    find /usr/local/lib/node_modules/@anthropic-ai -name "*.exe" -delete && \
+    find /usr/local/lib/node_modules/@anthropic-ai -path "*darwin*" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/node_modules/@anthropic-ai -path "*win32*" -type d -exec rm -rf {} + 2>/dev/null || true && \
+    find /usr/local/lib/node_modules/@anthropic-ai -path "*jetbrains*" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Stage 2: Runtime image
 FROM node:22-slim AS runtime
@@ -35,9 +35,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy global npm packages from builder
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
-# Copy yoga.wasm to the same directory as claude binary
-COPY --from=builder /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk/yoga.wasm /usr/local/bin/yoga.wasm
-
 # Set NODE_PATH to include global modules
 ENV NODE_PATH=/usr/local/lib/node_modules
 
