@@ -1,6 +1,6 @@
 {
-  "claude-code-cli": "1.0.64",
-  "claude-code-sdk-python": "0.0.17",
-  "last_updated": "2025-07-31",
-  "last_check": "2025-07-31"
+  "claude-agent-sdk-cli": "0.2.39",
+  "claude-agent-sdk-python": "0.1.35",
+  "last_updated": "2026-02-11",
+  "last_check": "2026-02-11"
 }

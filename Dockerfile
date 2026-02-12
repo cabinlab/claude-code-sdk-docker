@@ -1,8 +1,8 @@
-# Multi-language Claude Code SDK container
+# Multi-language Claude Agent SDK container
 # Supports both TypeScript/JavaScript and Python
-# Build Date: July 2025
-# Python SDK: Latest version (unpinned) - ~v0.0.17 as of July 2025
-# Inherits Claude Code CLI from base TypeScript image
+# Build Date: 2026-02-11
+# Python SDK: Latest version (unpinned) - ~v0.1.35 as of 2026-02-11
+# Inherits Claude Agent SDK CLI from base TypeScript image
 
 # Stage 1: Build Python dependencies
 ARG BASE_IMAGE=ghcr.io/cabinlab/claude-code-sdk:typescript
@@ -25,7 +25,7 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python SDK in the virtual environment
-RUN pip install --no-cache-dir claude-code-sdk
+RUN pip install --no-cache-dir claude-agent-sdk
 
 # Stage 2: Runtime image
 FROM ${BASE_IMAGE} AS runtime
