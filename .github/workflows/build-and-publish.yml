@@ -319,7 +319,7 @@ jobs:
           
           # Test Python SDK is installed
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-python \
-            python -c "import claude_code_sdk; print('SDK installed')"
+            python -c "import claude_agent_sdk; print('SDK installed')"
 
       - name: Test Alpine image
         if: matrix.image == 'alpine' && needs.changes.outputs.alpine == 'true' && needs.build-alpine.result == 'success'
@@ -353,4 +353,4 @@ jobs:
           
           # Test Python SDK is installed
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
-            python3 -c "import claude_code_sdk; print('Alpine Python SDK installed')"
+            python3 -c "import claude_agent_sdk; print('Alpine Python SDK installed')"

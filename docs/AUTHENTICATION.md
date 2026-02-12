@@ -1,6 +1,6 @@
-# Claude Code SDK Docker Authentication Guide
+# Claude Agent SDK Docker Authentication Guide
 
-This guide provides technical details about how authentication works in the Claude Code SDK Docker containers.
+This guide provides technical details about how authentication works in the Claude Agent SDK Docker containers.
 
 **For setup instructions**, see the [README Quick Start](../README.md#quick-start-for-claude-pro-and-max-users).
 
@@ -126,14 +126,14 @@ For increased security or when using different Claude accounts/methods per conta
 ```yaml
 services:
   typescript:
-    image: ghcr.io/[org]/claude-code-sdk:typescript
+    image: ghcr.io/[org]/claude-agent-sdk:typescript
     environment:
       - CLAUDE_CODE_OAUTH_TOKEN=${OAUTH_TOKEN_1}
     volumes:
       - claude-auth-dev:/home/claude/.claude
   
   python:
-    image: ghcr.io/[org]/claude-code-sdk:typescript
+    image: ghcr.io/[org]/claude-agent-sdk:typescript
     environment:
       - CLAUDE_CODE_OAUTH_TOKEN=${OAUTH_TOKEN_2}
     volumes:
@@ -152,7 +152,7 @@ You can also mix authentication methods across containers:
 services:
   # OAuth token for development
   dev:
-    image: ghcr.io/[org]/claude-code-sdk:typescript
+    image: ghcr.io/[org]/claude-agent-sdk:typescript
     environment:
       - CLAUDE_CODE_OAUTH_TOKEN=${OAUTH_TOKEN}
     volumes:
@@ -160,7 +160,7 @@ services:
   
   # API key for testing
   test:
-    image: ghcr.io/[org]/claude-code-sdk:typescript
+    image: ghcr.io/[org]/claude-agent-sdk:typescript
     environment:
       - ANTHROPIC_API_KEY=${API_KEY}
     volumes:
@@ -168,7 +168,7 @@ services:
   
   # Interactive auth
   experiment:
-    image: ghcr.io/[org]/claude-code-sdk:typescript
+    image: ghcr.io/[org]/claude-agent-sdk:typescript
     volumes:
       - claude-auth-exp:/home/claude/.claude
     # No token - use 'docker exec' to authenticate interactively

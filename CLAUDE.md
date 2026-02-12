@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Purpose
 
-This repository develops best-practice Docker containers for the Claude Code SDK and CLI that solve the authentication problem in containerized environments. The standard Claude Code OAuth flow is interactive and browser-based, which doesn't work well in containers. This project implements long-lived access token support as the solution.
+This repository develops best-practice Docker containers for the Claude Agent SDK and CLI that solve the authentication problem in containerized environments. The standard Claude Agent SDK OAuth flow is interactive and browser-based, which doesn't work well in containers. This project implements long-lived access token support as the solution.
 
 ## Key Problem Being Solved
 
-The Claude Code SDK attempts to use the CLI auth flow (invoked by `claude`) to create session-based OAuth tokens. This requires frequently using the CLI to manually exec into containers to reauth, as the interactive process requires a web browser. In containerized environments, this creates several problems:
+The Claude Agent SDK attempts to use the CLI auth flow (invoked by `claude`) to create session-based OAuth tokens. This requires frequently using the CLI to manually exec into containers to reauth, as the interactive process requires a web browser. In containerized environments, this creates several problems:
 - Containers typically don't have GUI/browser access
 - Session tokens expire, requiring repeated manual intervention
 - Standard Docker practices conflict with interactive authentication inside containers
@@ -24,13 +24,13 @@ Our solution: Move the CLI authentication work outside the container. Users run 
 
 ### Image Structure
 1. **Base TypeScript image** (`Dockerfile.typescript`):
-   - Provides Claude Code CLI + SDK for JavaScript/TypeScript
+   - Provides Claude Agent SDK CLI + SDK for JavaScript/TypeScript
    - Includes tsx for direct TypeScript execution
    - Sets up non-root user and proper permissions
 
 2. **Python extension** (`Dockerfile`):
    - Extends the TypeScript base (multi-language support)
-   - Adds Python 3.11 and claude-code-sdk-python
+   - Adds Python 3.11 and claude-agent-sdk-python
    - Maintains all JS/TS capabilities
 
 ### Repository Structure

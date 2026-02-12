@@ -1,14 +1,14 @@
-# Claude Code SDKs in Docker
+# Claude Agent SDKs in Docker
 
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml)
 
-### Docker images with Official Claude Code SDK built-in. 
+### Docker images with Official Claude Agent SDK built-in.
 
 Images:
 
- - TypeScript (607MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-code package](https://www.npmjs.com/package/@anthropic-ai/claude-code) on NPM. 
- - 🐍 Python (693MB) - adds Python 3 and Anthropic's [claude-code-sdk-python](https://github.com/anthropics/claude-code-sdk-python) aka [claude-code-sdk](https://pypi.org/project/claude-code-sdk/) on PyPI.
+ - TypeScript (607MB) - SDK and CLI are already included in the standard [@anthropic-ai/claude-agent-sdk package](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk) on NPM.
+ - 🐍 Python (693MB) - adds Python 3 and Anthropic's [claude-agent-sdk-python](https://github.com/anthropics/claude-agent-sdk-python) aka [claude-agent-sdk](https://pypi.org/project/claude-agent-sdk/) on PyPI.
  - 🏔️ Alpine TypeScript (383MB) - Minimal Alpine Linux base
  - 🏔️ Alpine Python (474MB) - Alpine with Python support
 
@@ -16,19 +16,19 @@ Images:
 
 ### ✅ Claude Pro and Max subscription compatibility
 
-***Problem:*** As of July, 2025, the Claude Code SDKs use the CLI OAuth flow, which is clunky inside a container. 
+***Problem:*** As of July, 2025, the Claude Agent SDKs use the CLI OAuth flow, which is clunky inside a container.
 
 ***Solution:*** These containers replace the CLI authentication with Long-lived access tokens. See: `claude setup-token --help`
 
 ## Available Images
 
 **Debian-based:**
-- `ghcr.io/cabinlab/claude-code-sdk:typescript` - CLI + TypeScript SDK
-- `ghcr.io/cabinlab/claude-code-sdk:python` - Above + Python SDK
+- `ghcr.io/cabinlab/claude-agent-sdk:typescript` - CLI + TypeScript SDK
+- `ghcr.io/cabinlab/claude-agent-sdk:python` - Above + Python SDK
 
 **Alpine-based:**
-- `ghcr.io/cabinlab/claude-code-sdk:alpine` - Minimal TypeScript
-- `ghcr.io/cabinlab/claude-code-sdk:alpine-python` - Minimal + Python
+- `ghcr.io/cabinlab/claude-agent-sdk:alpine` - Minimal TypeScript
+- `ghcr.io/cabinlab/claude-agent-sdk:alpine-python` - Minimal + Python
 
 ## Quick Start (for Claude Pro and Max users)
 
@@ -121,7 +121,7 @@ docker run --rm -it \
   -e CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat01-..." \
   -v $(pwd):/app \
   -p 3000:3000 \
-  ghcr.io/cabinlab/claude-code-sdk:typescript \
+  ghcr.io/cabinlab/claude-agent-sdk:typescript \
   bash
 
 # Python
@@ -129,7 +129,7 @@ docker run --rm -it \
   -e CLAUDE_CODE_OAUTH_TOKEN="sk-ant-oat01-..." \
   -v $(pwd):/app \
   -p 3000:3000 \
-  ghcr.io/cabinlab/claude-code-sdk:python \
+  ghcr.io/cabinlab/claude-agent-sdk:python \
   python
 ```
 
@@ -139,7 +139,7 @@ docker run --rm -it \
 
 #### Base (CLI + Typescript SDK)
 - **Non-root user** - Security best practice
-- **Claude Code CLI** - Familiar Claude Code CLI and auth flow
+- **Claude Agent SDK CLI** - Familiar Claude CLI and auth flow
 - **TypeScript SDK** - Native TypeScript/JavaScript support
 - **tsx** - Run TypeScript files directly without compilation
 - **Git, cURL, jq** - Essential development tools
@@ -152,7 +152,7 @@ docker run --rm -it \
 
 Each container includes a `.claude/` directory with:
 
-- **Slash Commands** - Directory and instructions for extending Claude Code with custom commands
+- **Slash Commands** - Directory and instructions for extending Claude with custom commands
 - **Hooks** - Directory and instructions to leverage Claude's behavior
 - Example configurations and documentation
 
@@ -167,11 +167,11 @@ docker run -v ~/.claude:/home/claude/.claude ...
 
 #### Claude Pro/Max users
 - Long-lived tokens [Recommended] → See [Quick Start](#quick-start-for-claude-pro-and-max-users) above
-- Session based tokens - This is the standard Claude Code auth flow
+- Session based tokens - This is the standard Claude auth flow
 
 #### Anthropic API Keys
 - Anthropic API keys → Set `ANTHROPIC_API_KEY` in your `.env` file
-- Can also be used through standard Claude Code auth flow
+- Can also be used through standard Claude auth flow
 - ⚠️ Likely overrides OAuth/Subscription plan settings
 - ✅ Use API ***OR*** Subscription, not both together
 
@@ -186,7 +186,7 @@ For technical details and troubleshooting, see our [Authentication Guide](docs/A
 
 ```dockerfile
 # For TypeScript projects
-FROM ghcr.io/cabinlab/claude-code-sdk:typescript
+FROM ghcr.io/cabinlab/claude-agent-sdk:typescript
 
 WORKDIR /app
 COPY package*.json ./
@@ -199,7 +199,7 @@ CMD ["npm", "start"]
 
 ```dockerfile
 # For Python projects
-FROM ghcr.io/cabinlab/claude-code-sdk:python
+FROM ghcr.io/cabinlab/claude-agent-sdk:python
 
 WORKDIR /app
 COPY requirements.txt .
@@ -212,11 +212,11 @@ CMD ["python", "main.py"]
 
 ```bash
 # Build TypeScript base
-docker build -f Dockerfile.typescript -t claude-code-sdk:typescript .
+docker build -f Dockerfile.typescript -t claude-agent-sdk:typescript .
 
 # Build Python extension
-docker build --build-arg BASE_IMAGE=claude-code-sdk:typescript \
-  -t claude-code-sdk:python .
+docker build --build-arg BASE_IMAGE=claude-agent-sdk:typescript \
+  -t claude-agent-sdk:python .
 ```
 
 </details>
@@ -239,7 +239,7 @@ See the `examples/` directory for sample code in:
 
 This repository automatically checks for new SDK versions daily and creates pull requests when updates are available. The automated workflow:
 - Runs daily at 2 AM UTC
-- Checks npm for Claude Code CLI updates
+- Checks npm for Claude Agent SDK CLI updates
 - Checks PyPI for Python SDK updates
 - Creates PRs with updated versions
 - Auto-merges PRs after tests pass
