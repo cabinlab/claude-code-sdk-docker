@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Docker entrypoint script for Claude Code SDK containers
+# Docker entrypoint script for Claude Agent SDK containers
 # Handles authentication setup and container initialization
 
 set -e
@@ -79,7 +79,7 @@ EOF
 }
 
 # Main entrypoint logic
-echo "Starting Claude Code SDK container..."
+echo "Starting Claude Agent SDK container..."
 
 # Setup authentication if OAuth token is provided
 setup_oauth_auth

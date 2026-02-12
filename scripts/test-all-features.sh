@@ -1,10 +1,10 @@
 #!/bin/bash
-# test-all-features.sh - Comprehensive test to exercise all Claude Code SDK functionality
+# test-all-features.sh - Comprehensive test to exercise all Claude Agent SDK functionality
 # Used for docker-slim to understand what files/binaries are actually needed
 
 set -e
 
-echo "=== Testing Claude Code SDK Features ==="
+echo "=== Testing Claude Agent SDK Features ==="
 
 # 1. Basic tools
 echo "Testing basic tools..."
@@ -15,15 +15,15 @@ bash --version
 sh -c "echo 'sh works'"
 
 # 2. Claude Code CLI
-echo "Testing Claude Code CLI..."
+echo "Testing Claude CLI..."
 claude --version || true
 # Don't actually auth, just test the binary works
 claude --help || true
 
 # 3. TypeScript/Node operations
 echo "Testing TypeScript/Node..."
-# Test require/import of Claude Code SDK
-node -e "const claude = require('@anthropic-ai/claude-code'); console.log('SDK loaded')" || true
+# Test require/import of Claude Agent SDK
+node -e "const claude = require('@anthropic-ai/claude-agent-sdk'); console.log('SDK loaded')" || true
 # Test tsx
 tsx --version || true
 echo "console.log('tsx test')" > /tmp/test.ts
@@ -34,7 +34,7 @@ rm -f /tmp/test.ts
 if command -v python3 &> /dev/null; then
     echo "Testing Python..."
     python3 --version
-    python3 -c "import claude_code_sdk; print('Python SDK loaded')" || true
+    python3 -c "import claude_agent_sdk; print('Python SDK loaded')" || true
     pip3 --version || true
 fi
 
@@ -100,8 +100,8 @@ touch ~/test-file && rm ~/test-file
 echo "Testing SSL certificates..."
 ls /etc/ssl/certs/ | head -5 || true
 
-# 13. Claude SDK actual usage simulation
-echo "Testing Claude SDK usage patterns..."
+# 13. Claude Agent SDK actual usage simulation
+echo "Testing Claude Agent SDK usage patterns..."
 cat > /tmp/test-claude.js << 'EOF'
 // Simulate what the SDK might do internally
 const fs = require('fs');
@@ -123,7 +123,7 @@ try {
   console.log('Process spawn test complete');
 }
 
-console.log('Claude SDK simulation complete');
+console.log('Claude Agent SDK simulation complete');
 EOF
 node /tmp/test-claude.js || true
 rm -f /tmp/test-claude.js

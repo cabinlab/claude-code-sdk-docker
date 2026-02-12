@@ -3,7 +3,7 @@
 
 set -e
 
-echo "=== Docker-slim optimization for Claude Code containers ==="
+echo "=== Docker-slim optimization for Claude Agent SDK containers ==="
 
 # Check if docker-slim is installed
 if ! command -v docker-slim &> /dev/null; then
@@ -54,7 +54,7 @@ validate_slim() {
     docker run --rm "$IMAGE" claude --version || { echo "FAIL: claude"; return 1; }
     
     # Test Claude SDK can be loaded
-    docker run --rm "$IMAGE" node -e "require('@anthropic-ai/claude-code')" || { echo "FAIL: SDK load"; return 1; }
+    docker run --rm "$IMAGE" node -e "require('@anthropic-ai/claude-agent-sdk')" || { echo "FAIL: SDK load"; return 1; }
     
     # Python-specific tests
     if [[ "$VARIANT" == *"python"* ]]; then

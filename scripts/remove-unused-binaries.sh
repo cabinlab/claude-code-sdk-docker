@@ -14,19 +14,19 @@ case "$ARCH" in
     *) echo "Unknown architecture: $ARCH"; exit 1 ;;
 esac
 
-# Find Claude Code module location
-CLAUDE_DIR=$(find /usr/local/lib/node_modules/@anthropic-ai/claude-code -name "ripgrep" -type d 2>/dev/null | head -1 || true)
+# Find Claude Agent SDK module location
+CLAUDE_DIR=$(find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -name "ripgrep" -type d 2>/dev/null | head -1 || true)
 
 if [ -z "$CLAUDE_DIR" ]; then
-    CLAUDE_DIR=$(find /usr/lib/node_modules/@anthropic-ai/claude-code -name "ripgrep" -type d 2>/dev/null | head -1 || true)
+    CLAUDE_DIR=$(find /usr/lib/node_modules/@anthropic-ai/claude-agent-sdk -name "ripgrep" -type d 2>/dev/null | head -1 || true)
 fi
 
 if [ -z "$CLAUDE_DIR" ]; then
-    echo "Claude Code module not found, skipping cleanup"
+    echo "Claude Agent SDK module not found, skipping cleanup"
     exit 0
 fi
 
-echo "Found Claude Code ripgrep at: $CLAUDE_DIR"
+echo "Found Claude Agent SDK ripgrep at: $CLAUDE_DIR"
 cd "$CLAUDE_DIR"
 
 # List current size
@@ -54,7 +54,7 @@ find . -name "rg" -type f | while read -r rg_file; do
 done
 
 # Remove JetBrains plugin files if not needed
-JETBRAINS_DIR=$(find /usr/local/lib/node_modules/@anthropic-ai/claude-code -name "jetbrains" -type d 2>/dev/null | head -1 || true)
+JETBRAINS_DIR=$(find /usr/local/lib/node_modules/@anthropic-ai/claude-agent-sdk -name "jetbrains" -type d 2>/dev/null | head -1 || true)
 if [ -n "$JETBRAINS_DIR" ]; then
     echo "Removing JetBrains plugin files..."
     rm -rf "$JETBRAINS_DIR"

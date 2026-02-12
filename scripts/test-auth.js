@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Test script to verify Claude Code OAuth authentication is working
+ * Test script to verify Claude Agent SDK OAuth authentication is working
  */
 
-const { query } = require("@anthropic-ai/claude-code");
+const { query } = require("@anthropic-ai/claude-agent-sdk");
 
 // Colors for console output
 const colors = {
@@ -20,7 +20,7 @@ function log(color, message) {
 }
 
 async function testAuthentication() {
-    log('blue', '🔍 Testing Claude Code OAuth Authentication');
+    log('blue', '🔍 Testing Claude Agent SDK OAuth Authentication');
     console.log('='.repeat(50));
     
     // Check environment variables
@@ -47,8 +47,8 @@ async function testAuthentication() {
         return false;
     }
     
-    // Test Claude Code SDK
-    console.log('\n🔄 Testing Claude Code SDK...');
+    // Test Claude Agent SDK
+    console.log('\n🔄 Testing Claude Agent SDK...');
     
     try {
         const prompt = 'Hello! Please respond with just "Authentication successful" if you can read this.';

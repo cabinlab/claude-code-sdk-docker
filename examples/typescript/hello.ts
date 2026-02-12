@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { query } from '@anthropic-ai/claude-code';
+import { query } from '@anthropic-ai/claude-agent-sdk';
 
 async function main() {
-  console.log('🤖 Claude Code TypeScript SDK Example\n');
+  console.log('🤖 Claude Agent SDK TypeScript Example\n');
 
   try {
     // Simple conversation

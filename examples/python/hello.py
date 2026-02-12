@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 """
-Example Python application using Claude Code SDK with OAuth authentication
-This demonstrates how to use Claude Code in a Docker container
+Example Python application using Claude Agent SDK with OAuth authentication
+This demonstrates how to use Claude Agent SDK in a Docker container
 """
 
 import os
 import asyncio
-from claude_code_sdk import query, ClaudeCodeOptions
-from claude_code_sdk.types import AssistantMessage, TextBlock
+from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk.types import AssistantMessage, TextBlock
 
 async def example_usage():
-    print("🤖 Claude Code SDK Example (Python)")
+    print("🤖 Claude Agent SDK Example (Python)")
     print("====================================\n")
     
     # Check authentication
@@ -31,7 +31,7 @@ async def example_usage():
     
     try:
         # Configure Claude options
-        options = ClaudeCodeOptions(
+        options = ClaudeAgentOptions(
             model='claude-3-5-sonnet-20241022',
             # You can add other options here:
             # max_turns=1,
@@ -40,7 +40,7 @@ async def example_usage():
         )
         
         prompt = """
-        Hello Claude! Please help me understand how to use the Claude Code SDK.
+        Hello Claude! Please help me understand how to use the Claude Agent SDK.
         Can you give me a brief overview of what it can do?
         """
         

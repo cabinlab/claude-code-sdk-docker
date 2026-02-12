@@ -1,4 +1,4 @@
-declare module "@anthropic-ai/claude-code" {
+declare module "@anthropic-ai/claude-agent-sdk" {
     export interface SDKTextBlock {
         type: 'text';
         text: string;

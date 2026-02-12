@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Example JavaScript application using Claude Code SDK with OAuth authentication
- * This demonstrates how to use Claude Code in a Docker container
+ * Example JavaScript application using Claude Agent SDK with OAuth authentication
+ * This demonstrates how to use Claude Agent SDK in a Docker container
  */
 
-const { query } = require("@anthropic-ai/claude-code");
+const { query } = require("@anthropic-ai/claude-agent-sdk");
 
 async function exampleUsage() {
-    console.log("🤖 Claude Code SDK Example (JavaScript)");
+    console.log("🤖 Claude Agent SDK Example (JavaScript)");
     console.log("========================================\n");
     
     // Check authentication
@@ -31,7 +31,7 @@ async function exampleUsage() {
     
     try {
         const prompt = `
-        Hello Claude! Please help me understand how to use the Claude Code SDK.
+        Hello Claude! Please help me understand how to use the Claude Agent SDK.
         Can you give me a brief overview of what it can do?
         `;
         

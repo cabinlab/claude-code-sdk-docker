@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-Test script to verify Claude Code OAuth authentication is working
+Test script to verify Claude Agent SDK OAuth authentication is working
 """
 
 import os
 import asyncio
-from claude_code_sdk import query, ClaudeCodeOptions
-from claude_code_sdk.types import AssistantMessage, TextBlock
+from claude_agent_sdk import query, ClaudeAgentOptions
+from claude_agent_sdk.types import AssistantMessage, TextBlock
 
 # Colors for console output
 class Colors:
@@ -21,7 +21,7 @@ def log(color, message):
     print(f"{getattr(Colors, color.upper())}{message}{Colors.RESET}")
 
 async def test_authentication():
-    log('blue', '🔍 Testing Claude Code OAuth Authentication')
+    log('blue', '🔍 Testing Claude Agent SDK OAuth Authentication')
     print('=' * 50)
     
     # Check environment variables
@@ -46,11 +46,11 @@ async def test_authentication():
         print('  claude auth login')
         return False
     
-    # Test Claude Code SDK
-    print('\n🔄 Testing Claude Code SDK...')
+    # Test Claude Agent SDK
+    print('\n🔄 Testing Claude Agent SDK...')
     
     try:
-        options = ClaudeCodeOptions(
+        options = ClaudeAgentOptions(
             model='claude-3-5-sonnet-20241022'
         )
         
