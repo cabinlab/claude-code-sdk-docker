@@ -35,10 +35,9 @@ RUN apk add --no-cache \
     nano \
     ca-certificates
 
-# Copy node modules from builder
+# Copy global npm packages from builder
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
-COPY --from=builder /usr/local/bin/claude /usr/local/bin/claude
-COPY --from=builder /usr/local/bin/tsx /usr/local/bin/tsx
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
 # Set NODE_PATH to include global modules
 ENV NODE_PATH=/usr/local/lib/node_modules
 
