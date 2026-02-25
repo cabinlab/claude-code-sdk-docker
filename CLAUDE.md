@@ -19,9 +19,15 @@ Our solution: The entrypoint script pre-provisions the CLI configuration files (
 - The entrypoint pre-provisions credential files and onboarding state so the CLI works non-interactively
 - Fallback support for interactive auth (via `docker exec`) and direct API keys
 
+### Installation Strategy
+- The CLI (`claude`) is installed via the native installer (`curl https://claude.ai/install.sh | bash`), not npm (npm install is deprecated for the CLI)
+- The SDK (`@anthropic-ai/claude-agent-sdk`) and tsx are still installed via npm
+- Auto-updater is disabled in containers (`DISABLE_AUTOUPDATER=1` in settings.json) — versions are pinned to image builds
+- Alpine images additionally need `libgcc`, `libstdc++`, `ripgrep`, and `USE_BUILTIN_RIPGREP=0`
+
 ### Image Structure
 1. **Base TypeScript image** (`Dockerfile.typescript`):
-   - Provides Claude Agent SDK CLI + SDK for JavaScript/TypeScript
+   - Claude CLI via native installer + SDK/tsx via npm
    - Includes tsx for direct TypeScript execution
    - Sets up non-root user and proper permissions
 

@@ -16,33 +16,42 @@ RUN apk add --no-cache \
     gcc \
     libc-dev
 
-# Install Claude Code CLI + Agent SDK + tsx globally
-RUN npm install -g @anthropic-ai/claude-code @anthropic-ai/claude-agent-sdk tsx && \
-    # Remove unused platform-specific binaries to reduce image size
+# Install Agent SDK + tsx globally via npm
+RUN npm install -g @anthropic-ai/claude-agent-sdk tsx && \
     find /usr/local/lib/node_modules/@anthropic-ai -name "*.exe" -delete && \
     find /usr/local/lib/node_modules/@anthropic-ai -path "*darwin*" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/node_modules/@anthropic-ai -path "*win32*" -type d -exec rm -rf {} + 2>/dev/null || true && \
-    find /usr/local/lib/node_modules/@anthropic-ai -path "*jetbrains*" -type d -exec rm -rf {} + 2>/dev/null || true
+    find /usr/local/lib/node_modules/@anthropic-ai -path "*win32*" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Stage 2: Runtime stage
 FROM node:22-alpine AS runtime
 
-# Install only minimal runtime dependencies
+# Install minimal runtime dependencies
 RUN apk add --no-cache \
     git \
     bash \
     curl \
     nano \
-    ca-certificates
+    ca-certificates \
+    libgcc \
+    libstdc++ \
+    ripgrep
 
-# Copy global npm packages from builder
+# Copy global npm packages (SDK + tsx) from builder
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Install Claude Code CLI via native installer, then relocate for all users
+RUN curl -fsSL https://claude.ai/install.sh | bash && \
+    cp /root/.local/bin/claude /usr/local/bin/claude && \
+    chmod 755 /usr/local/bin/claude
 # Set NODE_PATH to include global modules
 ENV NODE_PATH=/usr/local/lib/node_modules
 
-# Create non-root user
-RUN adduser -D -s /bin/bash claude
+# Create non-root user and configure settings
+RUN adduser -D -s /bin/bash claude && \
+    mkdir -p /home/claude/.claude && \
+    echo '{"env":{"DISABLE_AUTOUPDATER":"1","USE_BUILTIN_RIPGREP":"0"}}' > /home/claude/.claude/settings.json && \
+    chown -R claude:claude /home/claude/.claude
 
 # Switch to non-root user
 USER claude
