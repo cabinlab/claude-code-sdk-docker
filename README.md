@@ -14,11 +14,11 @@ Images:
 
 ## Why use these images?
 
-### ✅ Claude Pro and Max subscription compatibility
+### ✅ Works non-interactively out of the box
 
-***Problem:*** The Claude Agent SDKs use the CLI OAuth flow, which is clunky inside a container.
+The Claude CLI normally requires an interactive OAuth flow and onboarding wizard on first run — not ideal inside a container. These images come pre-configured to skip all interactive prompts. Just pass your token as an env var and go.
 
-***Solution:*** These containers replace the CLI authentication with Long-lived access tokens. See: `claude setup-token --help`
+Generate a token on your host machine with `claude setup-token`, then pass it to the container via `CLAUDE_CODE_OAUTH_TOKEN`.
 
 ## Available Images
 

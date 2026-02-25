@@ -4,23 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Purpose
 
-This repository develops best-practice Docker containers for the Claude Agent SDK and CLI that solve the authentication problem in containerized environments. The standard Claude Agent SDK OAuth flow is interactive and browser-based, which doesn't work well in containers. This project implements long-lived access token support as the solution.
+This repository provides ready-to-use Docker containers with the Claude Agent SDK and CLI pre-installed and pre-configured for non-interactive use. The CLI normally requires an interactive OAuth flow and onboarding wizard on first run, which is impractical in containers. These images handle that setup automatically.
 
 ## Key Problem Being Solved
 
-The Claude Agent SDK attempts to use the CLI auth flow (invoked by `claude`) to create session-based OAuth tokens. This requires frequently using the CLI to manually exec into containers to reauth, as the interactive process requires a web browser. In containerized environments, this creates several problems:
-- Containers typically don't have GUI/browser access
-- Session tokens expire, requiring repeated manual intervention
-- Standard Docker practices conflict with interactive authentication inside containers
+The Claude CLI's first-run experience involves interactive prompts (onboarding wizard, project trust dialogs) that don't work in headless containers. While the CLI natively supports `CLAUDE_CODE_OAUTH_TOKEN` as an env var for authentication, it still expects onboarding and trust acceptance to have been completed.
 
-Our solution: Move the CLI authentication work outside the container. Users run `claude setup-token` on their host machine to generate a long-lived access token (`sk-ant-oat01-*`), which can then be passed to containers as an environment variable, eliminating the need for interactive authentication inside containers.
+Our solution: The entrypoint script pre-provisions the CLI configuration files (`~/.claude.json`, `~/.claude/.credentials.json`) so the CLI starts in a fully configured state — no interactive prompts needed. Users run `claude setup-token` on their host machine to generate a long-lived access token (`sk-ant-oat01-*`) and pass it to the container as an environment variable.
 
 ## Architecture Decisions
 
 ### Authentication Strategy
 - Primary method: `CLAUDE_CODE_OAUTH_TOKEN` environment variable with long-lived tokens
-- The containers modify the standard authentication flow to accept tokens via environment variables
-- Fallback support for legacy session tokens and direct API keys
+- The entrypoint pre-provisions credential files and onboarding state so the CLI works non-interactively
+- Fallback support for interactive auth (via `docker exec`) and direct API keys
 
 ### Image Structure
 1. **Base TypeScript image** (`Dockerfile.typescript`):
