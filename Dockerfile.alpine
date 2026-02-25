@@ -45,6 +45,7 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
     cp /root/.local/bin/claude /usr/local/bin/claude && \
     chmod 755 /usr/local/bin/claude
 ENV NODE_PATH=/usr/local/lib/node_modules
+ENV PATH="/home/claude/.local/bin:$PATH"
 
 # Create non-root user with CLI symlink at expected path, configure settings
 RUN adduser -D -s /bin/bash claude && \

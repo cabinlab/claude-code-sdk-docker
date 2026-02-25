@@ -36,6 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 ENV NODE_PATH=/usr/local/lib/node_modules
+ENV PATH="/home/claude/.local/bin:$PATH"
 
 # Install Claude Code CLI via native installer
 RUN curl -fsSL https://claude.ai/install.sh | bash && \
