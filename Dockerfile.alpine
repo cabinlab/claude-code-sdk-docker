@@ -40,15 +40,17 @@ RUN apk add --no-cache \
 COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# Install Claude Code CLI via native installer, then relocate for all users
+# Install Claude Code CLI via native installer
 RUN curl -fsSL https://claude.ai/install.sh | bash && \
     cp /root/.local/bin/claude /usr/local/bin/claude && \
     chmod 755 /usr/local/bin/claude
-# Set NODE_PATH to include global modules
 ENV NODE_PATH=/usr/local/lib/node_modules
 
-# Create non-root user and configure settings
+# Create non-root user with CLI symlink at expected path, configure settings
 RUN adduser -D -s /bin/bash claude && \
+    mkdir -p /home/claude/.local/bin && \
+    ln -s /usr/local/bin/claude /home/claude/.local/bin/claude && \
+    chown -R claude:claude /home/claude/.local && \
     mkdir -p /home/claude/.claude && \
     echo '{"env":{"DISABLE_AUTOUPDATER":"1","USE_BUILTIN_RIPGREP":"0"}}' > /home/claude/.claude/settings.json && \
     chown -R claude:claude /home/claude/.claude

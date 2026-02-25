@@ -37,13 +37,16 @@ COPY --from=builder /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 ENV NODE_PATH=/usr/local/lib/node_modules
 
-# Install Claude Code CLI via native installer, then relocate for all users
+# Install Claude Code CLI via native installer
 RUN curl -fsSL https://claude.ai/install.sh | bash && \
     cp /root/.local/bin/claude /usr/local/bin/claude && \
     chmod 755 /usr/local/bin/claude
 
-# Create non-root user
-RUN useradd -m -s /bin/bash claude
+# Create non-root user with CLI symlink at expected path
+RUN useradd -m -s /bin/bash claude && \
+    mkdir -p /home/claude/.local/bin && \
+    ln -s /usr/local/bin/claude /home/claude/.local/bin/claude && \
+    chown -R claude:claude /home/claude/.local
 
 # Create directory for Claude auth and configuration
 RUN mkdir -p /home/claude/.claude && \
