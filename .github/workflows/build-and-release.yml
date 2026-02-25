@@ -1,4 +1,4 @@
-name: Build and Publish Docker Images
+name: Build and Release Docker Images
 
 on:
   push:
@@ -7,14 +7,15 @@ on:
     paths:
       - 'Dockerfile*'
       - 'scripts/docker-entrypoint.sh'
-      - '.github/workflows/build-and-publish.yml'
+      - '.github/workflows/build-and-release.yml'
       - '.dockerignore'
+      - 'versions.json'
   pull_request:
     branches: [ main ]
     paths:
       - 'Dockerfile*'
       - 'scripts/docker-entrypoint.sh'
-      - '.github/workflows/build-and-publish.yml'
+      - '.github/workflows/build-and-release.yml'
       - '.dockerignore'
   workflow_dispatch:
     inputs:
@@ -354,3 +355,65 @@ jobs:
           # Test Python SDK is installed
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.number }}-alpine-python \
             python3 -c "import claude_agent_sdk; print('Alpine Python SDK installed')"
+
+  release:
+    needs: [build-typescript, build-python, build-alpine, build-alpine-python]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && always()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if versions changed
+        id: versions
+        run: |
+          if git diff HEAD~1 --name-only | grep -q '^versions.json$'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create release
+        if: steps.versions.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Read versions
+          CLI_VERSION=$(jq -r '."claude-code-cli"' versions.json)
+          SDK_VERSION=$(jq -r '."claude-agent-sdk-cli"' versions.json)
+          PYTHON_VERSION=$(jq -r '."claude-agent-sdk-python"' versions.json)
+          DATE=$(jq -r '.last_updated' versions.json)
+
+          # Determine tag (handle same-day duplicates)
+          TAG="${DATE}"
+          SUFFIX=1
+          while git tag -l "$TAG" | grep -q .; do
+            TAG="${DATE}.${SUFFIX}"
+            SUFFIX=$((SUFFIX + 1))
+          done
+
+          # Build release notes
+          NOTES="## SDK Versions"
+          NOTES+=$'\n\n'"| Package | Version |"
+          NOTES+=$'\n'"| --- | --- |"
+          NOTES+=$'\n'"| \`@anthropic-ai/claude-code\` (CLI) | ${CLI_VERSION} |"
+          NOTES+=$'\n'"| \`@anthropic-ai/claude-agent-sdk\` (TS SDK) | ${SDK_VERSION} |"
+          NOTES+=$'\n'"| \`claude-agent-sdk\` (Python SDK) | ${PYTHON_VERSION} |"
+          NOTES+=$'\n\n'"## Docker Images"
+          NOTES+=$'\n\n'"Pull the latest:"
+          NOTES+=$'\n'"\`\`\`bash"
+          NOTES+=$'\n'"docker pull ghcr.io/cabinlab/claude-code-sdk-docker:typescript"
+          NOTES+=$'\n'"docker pull ghcr.io/cabinlab/claude-code-sdk-docker:python"
+          NOTES+=$'\n'"docker pull ghcr.io/cabinlab/claude-code-sdk-docker:alpine"
+          NOTES+=$'\n'"docker pull ghcr.io/cabinlab/claude-code-sdk-docker:alpine-python"
+          NOTES+=$'\n'"\`\`\`"
+
+          gh release create "$TAG" \
+            --title "SDK Update ${TAG}" \
+            --notes "$NOTES" \
+            --latest

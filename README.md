@@ -1,7 +1,7 @@
 # Claude Agent SDKs in Docker
 
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Publish](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-publish.yml)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?logo=discord&logoColor=white)](https://discord.gg/aaSgZBgkCK) [![Build and Release](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-release.yml/badge.svg)](https://github.com/cabinlab/claude-code-sdk-docker/actions/workflows/build-and-release.yml)
 
 ### Docker images with Official Claude Agent SDK built-in.
 
