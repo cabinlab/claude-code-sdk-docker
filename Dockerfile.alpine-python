@@ -1,6 +1,6 @@
 # Alpine Python extension - adds Python SDK to Alpine base
-# Build Date: 2026-02-24
-# Python SDK: claude-agent-sdk ~v0.1.42
+# Build Date: 2026-02-26
+# Python SDK: claude-agent-sdk ~v0.1.44
 # Inherits Claude Agent SDK CLI from base Alpine image
 
 # Build argument for base image (defaults to published alpine image)
