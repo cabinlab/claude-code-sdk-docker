@@ -184,6 +184,10 @@ jobs:
           BODY+=$'\n'"- Updated version comments in affected Dockerfiles"
           BODY+=$'\n'"- Container images will be rebuilt automatically upon merge"
 
+          # --- Ensure labels exist ---
+          gh label create "dependencies" --description "Dependency version updates" --color "0366d6" 2>/dev/null || true
+          gh label create "automated" --description "Automated pull requests" --color "ededed" 2>/dev/null || true
+
           # --- Create PR ---
           PR_URL=$(gh pr create \
             --title "chore: update SDK versions (${TODAY})" \
