@@ -1,7 +1,7 @@
 {
-  "claude-agent-sdk-cli": "0.2.81",
-  "claude-code-cli": "2.1.81",
+  "claude-agent-sdk-cli": "0.2.84",
+  "claude-code-cli": "2.1.84",
   "claude-agent-sdk-python": "0.1.50",
-  "last_updated": "2026-03-21",
-  "last_check": "2026-03-21"
+  "last_updated": "2026-03-26",
+  "last_check": "2026-03-26"
 }
