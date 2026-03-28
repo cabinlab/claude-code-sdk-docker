@@ -1,8 +1,8 @@
 # Alpine-based minimal Claude Agent SDK container
 # Optimized for fast startup and small size in agent/CI scenarios
-# Build Date: 2026-03-27
-# Claude Code CLI: @anthropic-ai/claude-code ~v2.1.85
-# Claude Agent SDK: @anthropic-ai/claude-agent-sdk ~v0.2.85
+# Build Date: 2026-03-28
+# Claude Code CLI: @anthropic-ai/claude-code ~v2.1.86
+# Claude Agent SDK: @anthropic-ai/claude-agent-sdk ~v0.2.86
 
 # Stage 1: Build stage
 FROM node:22-alpine AS builder
