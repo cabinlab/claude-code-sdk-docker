@@ -1,7 +1,7 @@
 # Multi-language Claude Agent SDK container
 # Supports both TypeScript/JavaScript and Python
-# Build Date: 2026-03-21
-# Python SDK: claude-agent-sdk ~v0.1.50
+# Build Date: 2026-03-28
+# Python SDK: claude-agent-sdk ~v0.1.51
 # Inherits Claude Agent SDK CLI from base TypeScript image
 
 # Stage 1: Build Python dependencies
