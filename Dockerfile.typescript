@@ -1,7 +1,7 @@
 # Stage 1: Build dependencies
-# Build Date: 2026-10-03
-# Claude Code CLI: @anthropic-ai/claude-code ~v2.1.288
-# Claude Agent SDK: @anthropic-ai/claude-agent-sdk ~v0.3.288
+# Build Date: 2026-10-04
+# Claude Code CLI: @anthropic-ai/claude-code ~v2.1.289
+# Claude Agent SDK: @anthropic-ai/claude-agent-sdk ~v0.3.289
 FROM node:22-slim AS builder
 
 # Install build dependencies
